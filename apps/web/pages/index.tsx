@@ -1,24 +1,27 @@
 import React, { MouseEvent } from 'react';
 import ReactDOM from 'react-dom/client';
 
-function Square(props: any) {
+
+function Card(props: any) {
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className="card" onClick={props.onClick}>
       {props.value}
     </button>
   );
 }
 
+
 interface BoardProps {
-  squares: Array<number>;
+  cards: Array<number>;
+  trick: Array<number>;
   onClick: (index: number) => void;
 }
 
 class Board extends React.Component<BoardProps, any> {
-  renderSquare(i: number) {
+  renderCard(i: number) {
     return (
-      <Square
-        value={this.props.squares[i]}
+      <Card
+        value={this.props.cards[i]}
         onClick={() => this.props.onClick(i)}
       />
     );
@@ -28,19 +31,18 @@ class Board extends React.Component<BoardProps, any> {
     return (
       <div>
         <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
+        { 
+          this.props.cards.map(item => {
+            return this.renderCard(item);
+          })
+        }
         </div>
         <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
+        { 
+          this.props.trick.map(item => {
+            return this.renderCard(item);
+          })
+        }
         </div>
       </div>
     );
@@ -59,7 +61,8 @@ class Game extends React.Component<GameProps, any> {
       super(props);
       this.state = {
         history: [{
-          squares: Array(9).fill(null),
+          cards: Array(26).fill(null),
+          trick: Array(3).fill(null),
         }],
         stepNumber: 0,
         xIsNext: true,
@@ -69,14 +72,16 @@ class Game extends React.Component<GameProps, any> {
     handleClick(i: number) {
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
       const current = history[history.length - 1];
-      const squares = current.squares.slice();
-          if (calculateWinner(squares) || squares[i]) {
+      const cards = current.cards.slice();
+          if (calculateWinner(cards) || cards[i]) {
         return;
       }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
+      const trick = current.trick.slice();
+        // cards[i] = this.state.xIsNext ? 'X' : 'O';
       this.setState({
           history: history.concat([{
-              squares: squares,
+              cards: cards,
+              trick: trick,
             }]),
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
@@ -93,7 +98,7 @@ class Game extends React.Component<GameProps, any> {
     render() {
       const history = this.state.history;
       const current = history[this.state.stepNumber];
-      const winner = calculateWinner(current.squares);
+      const winner = calculateWinner(current.cards);
 
       const moves = history.map((step: any, move: React.Key) => {
           const desc = move ?
@@ -117,7 +122,8 @@ class Game extends React.Component<GameProps, any> {
       <div className="game">
         <div className="game-board">
           <Board
-              squares={current.squares}
+              cards={current.cards}
+              trick={current.trick}
               onClick={(i) => this.handleClick(i)}
           />
         </div>
@@ -130,23 +136,7 @@ class Game extends React.Component<GameProps, any> {
   }
 }
 
-function calculateWinner(squares: Array<number>) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
+function calculateWinner(cards: Array<number>) {
   return null;
 }
 
