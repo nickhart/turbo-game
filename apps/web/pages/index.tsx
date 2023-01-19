@@ -48,9 +48,9 @@ class Board extends React.Component<BoardProps, any> {
 }
   
 interface GameProps {
-  history: Array<Array<number>> | undefined;
-  stepNumber: number | undefined;
-  xIsNext: boolean | undefined;
+  history?: Array<Array<number>>;
+  stepNumber?: number;
+  xIsNext?: boolean;
 
 }
 
