@@ -1,6 +1,46 @@
 import React, { MouseEvent } from 'react';
 import ReactDOM from 'react-dom/client';
 
+type Card = {
+  index: number;
+  suit: number;
+  rank: number;
+  points: number;
+  name: string;
+};
+
+const gameDeck: Array<Card> = [
+  { index: 0, suit: 0, rank: 0, points: 3, name: 'QC'},
+  { index: 1, suit: 0, rank: 1, points: 3, name: 'QS'},
+  { index: 2, suit: 0, rank: 2, points: 3, name: 'QH'},
+  { index: 3, suit: 0, rank: 3, points: 3, name: 'QD'},
+  { index: 4, suit: 0, rank: 4, points: 2, name: 'JC'},
+  { index: 5, suit: 0, rank: 5, points: 2, name: 'JS'},
+  { index: 6, suit: 0, rank: 6, points: 2, name: 'JH'},
+  { index: 7, suit: 0, rank: 7, points: 2, name: 'JD'},
+  { index: 8, suit: 0, rank: 8, points: 11, name: 'AD'},
+  { index: 9, suit: 0, rank: 9, points: 10, name: 'TD'},
+  { index: 10, suit: 0, rank: 10, points: 4, name: 'KD'},
+  { index: 11, suit: 0, rank: 11, points: 0, name: '9D'},
+  { index: 12, suit: 0, rank: 12, points: 0, name: '8D'},
+  { index: 13, suit: 0, rank: 13, points: 0, name: '7D'},
+
+  { index: 14, suit: 1, rank: 8, points: 11, name: 'AC'},
+  { index: 15, suit: 1, rank: 9, points: 10, name: 'TC'},
+  { index: 16, suit: 1, rank: 10, points: 4, name: 'KC'},
+  { index: 17, suit: 1, rank: 11, points: 0, name: '9C'},
+
+  { index: 18, suit: 2, rank: 8, points: 11, name: 'AS'},
+  { index: 19, suit: 2, rank: 9, points: 10, name: 'TS'},
+  { index: 20, suit: 2, rank: 10, points: 4, name: 'KS'},
+  { index: 21, suit: 2, rank: 11, points: 0, name: '9S'},
+
+  { index: 22, suit: 2, rank: 8, points: 11, name: 'AH'},
+  { index: 23, suit: 2, rank: 9, points: 10, name: 'TH'},
+  { index: 24, suit: 2, rank: 10, points: 4, name: 'KH'},
+  { index: 25, suit: 2, rank: 11, points: 0, name: '9H'}
+];
+
 
 function Card(props: any) {
   return (
@@ -13,46 +53,66 @@ function Card(props: any) {
 
 interface BoardProps {
   cards: Array<number>;
-  trick: Array<number>;
-  onClick: (index: number) => void;
+  onClick: (card: Card) => void;
 }
 
 class Board extends React.Component<BoardProps, any> {
-  renderCard(i: number) {
+  renderCard(card: Card) {
+    console.log(`renderCard: ${card.name}`);
     return (
       <Card
-        value={this.props.cards[i]}
-        onClick={() => this.props.onClick(i)}
+        value={card.name}
+        onClick={() => this.props.onClick(card)}
       />
     );
   }
 
+  renderHand(hand: Array<Card>) {
+    return (
+      <div className="board-row">
+      { 
+        hand.map((card) => this.renderCard(card))
+      }
+      </div>
+    );
+}
+
   render() {
+    const hands = extractHands(this.props.cards);
     return (
       <div>
-        <div className="board-row">
-        { 
-          this.props.cards.map(item => {
-            return this.renderCard(item);
-          })
+        {
+          hands.map((hand) => this.renderHand(hand))
         }
-        </div>
-        <div className="board-row">
-        { 
-          this.props.trick.map(item => {
-            return this.renderCard(item);
-          })
-        }
-        </div>
       </div>
     );
   }
 }
-  
+
+interface GameState {
+  cards: Array<number>;
+}
+
+function gameState() {
+  return { cards: Array(26).fill(0) };
+}
+
+function extractHands(cards: Array<number>): Array<Array<Card>> {
+  let hands: Card[][] = [[], [], [], []];
+
+  cards.forEach((item: number, index: number) => {
+    const hand: Array<Card> = hands[item];
+    console.log(`card# ${index} => hand# ${item} => ${hand}`);
+    hand.push(gameDeck[index]);
+  });
+
+  return hands;
+}
+
 interface GameProps {
-  history?: Array<Array<number>>;
+  history?: Array<GameState>;
   stepNumber?: number;
-  xIsNext?: boolean;
+  currentPlayer?: number;
 
 }
 
@@ -60,38 +120,35 @@ class Game extends React.Component<GameProps, any> {
   constructor(props: any) {
       super(props);
       this.state = {
-        history: [{
-          cards: Array(26).fill(null),
-          trick: Array(3).fill(null),
-        }],
+        history: [ gameState() ],
         stepNumber: 0,
-        xIsNext: true,
+        currentPlayer: 0,
       };
     }
 
-    handleClick(i: number) {
+    handleClick(card: Card) {
+      console.log(`handleClick: ${card.name}`);
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
       const current = history[history.length - 1];
       const cards = current.cards.slice();
-          if (calculateWinner(cards) || cards[i]) {
+          if (calculateWinner(cards) || cards[card.index]) {
         return;
       }
-      const trick = current.trick.slice();
-        // cards[i] = this.state.xIsNext ? 'X' : 'O';
+      cards[card.index] = this.state.currentPlayer+1;
+      console.log(`setting card ${card.index} to ${this.state.currentPlayer}`);
       this.setState({
           history: history.concat([{
               cards: cards,
-              trick: trick,
             }]),
             stepNumber: history.length,
-            xIsNext: !this.state.xIsNext,
+            currentPlayer: (this.state.currentPlayer+1)%3,
       });
     }
 
     jumpTo(step: number) {
       this.setState({
         stepNumber: step,
-        xIsNext: (step % 2) === 0,
+        currentPlayer: (step % 2) === 0,
       });
     }
   
@@ -115,7 +172,7 @@ class Game extends React.Component<GameProps, any> {
       if (winner) {
         status = 'Winner: ' + winner;
       } else {
-        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        status = `Next player: ${this.state.currentPlayer}`;
       }
 
       return (
@@ -123,8 +180,7 @@ class Game extends React.Component<GameProps, any> {
         <div className="game-board">
           <Board
               cards={current.cards}
-              trick={current.trick}
-              onClick={(i) => this.handleClick(i)}
+              onClick={(card: Card) => this.handleClick(card)}
           />
         </div>
         <div className="game-info">
