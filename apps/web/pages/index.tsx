@@ -1,6 +1,13 @@
 import React, { MouseEvent } from 'react';
 import ReactDOM from 'react-dom/client';
 
+const handNames = [
+  'deck',
+  'p1',
+  'p2',
+  'p3'
+];
+
 type Card = {
   index: number;
   suit: number;
@@ -44,7 +51,7 @@ const gameDeck: Array<Card> = [
 
 function Card(props: any) {
   return (
-    <button className="card" onClick={props.onClick}>
+    <button className="card" onClick={props.onClick} key={props.cardKey}>
       {props.value}
     </button>
   );
@@ -57,21 +64,23 @@ interface BoardProps {
 }
 
 class Board extends React.Component<BoardProps, any> {
-  renderCard(card: Card) {
-    console.log(`renderCard: ${card.name}`);
+  renderCard(card: Card, handName: string, index: number) {
+    const cardKey = `${handName}_${index}`;
     return (
       <Card
         value={card.name}
+        cardKey={cardKey}
         onClick={() => this.props.onClick(card)}
       />
     );
   }
 
-  renderHand(hand: Array<Card>) {
+  renderHand(hand: Array<Card>, handName: string) {
     return (
-      <div className="board-row">
+      <div className="board-row" id={handName}>
+        <h3>{handName}</h3>
       { 
-        hand.map((card) => this.renderCard(card))
+        hand.map((card, index) => this.renderCard(card, handName, index))
       }
       </div>
     );
@@ -82,7 +91,7 @@ class Board extends React.Component<BoardProps, any> {
     return (
       <div>
         {
-          hands.map((hand) => this.renderHand(hand))
+          hands.map((hand, index) => this.renderHand(hand, handNames[index]))
         }
       </div>
     );
@@ -102,7 +111,6 @@ function extractHands(cards: Array<number>): Array<Array<Card>> {
 
   cards.forEach((item: number, index: number) => {
     const hand: Array<Card> = hands[item];
-    console.log(`card# ${index} => hand# ${item} => ${hand}`);
     hand.push(gameDeck[index]);
   });
 
@@ -135,7 +143,6 @@ class Game extends React.Component<GameProps, any> {
         return;
       }
       cards[card.index] = this.state.currentPlayer+1;
-      console.log(`setting card ${card.index} to ${this.state.currentPlayer}`);
       this.setState({
           history: history.concat([{
               cards: cards,
