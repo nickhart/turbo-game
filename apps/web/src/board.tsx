@@ -20,6 +20,7 @@ export class Board extends React.Component<BoardProps, any> {
     }
 
     renderHand(hand: Array<Card>, handName: string) {
+        console.log(`renderHand: name: ${handName}`)
         return (
         <div className="board-row" id={handName}>
             <h3>{handName}</h3>

@@ -56,16 +56,13 @@ class Game extends React.Component<GameProps, any> {
       const current = history[history.length - 1];
 
       const cards = dealCards();
-      console.log(`cards: ${cards}`);
       const state = deduceState(cards);
-      console.log(`state: ${state}`);
 
       this.setState({
         history: history.concat([{
             cards: cards,
           }]),
           stepNumber: history.length,
-          // currentPlayer: 0, // parameterize this
       });
 
     }
@@ -78,7 +75,6 @@ class Game extends React.Component<GameProps, any> {
     }
   
     render() {
-      console.log('render BEGIN');
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.cards);
@@ -87,9 +83,7 @@ class Game extends React.Component<GameProps, any> {
       if (this.state.stepNumber === 0) {
           const desc = 'Deal Cards'
           actions = [(
-            <li key={desc}>
-              <button onClick={() => this.beginGame()}>{desc}</button>
-            </li>
+            <button onClick={() => this.beginGame()}>{desc}</button>
           )]
       }
       else {
@@ -113,7 +107,6 @@ class Game extends React.Component<GameProps, any> {
       } else {
         status = `Next player: ${this.state.currentPlayer}`;
       }
-      console.log('render END');
 
       return (
         <ZoliteProvider>
@@ -123,10 +116,14 @@ class Game extends React.Component<GameProps, any> {
                   cards={current.cards}
                   onClick={(card: Card) => this.handleClick(card)}
               />
+              <div className="board-row" id={'actions'}>
+                <h3>Actions</h3>
+                  {actions}
+            </div>
             </div>
             <div className="game-info">
               <div>{status}</div>
-              <ol>{moves} {actions}</ol>
+              <ol>{moves}</ol>
             </div>
           </div>
         </ZoliteProvider>

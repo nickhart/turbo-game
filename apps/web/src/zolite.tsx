@@ -98,10 +98,8 @@ export function calculateWinner(cards: Array<number>) {
 export function extractHands(cards: Array<number>): Array<Array<Card>> {
     let hands: Card[][] = [[], [], [], []];
   
-    console.log(`extractHands: cards = ${cards}...`);
     cards.forEach((item: number, index: number) => {
       const hand: Array<Card> = hands[item];
-      console.log(`index: ${index}`);
       const card = gameDeck[index];
       hand.push(card);
     });
@@ -111,27 +109,21 @@ export function extractHands(cards: Array<number>): Array<Array<Card>> {
 
 export function dealCards(): Array<number> {
   const newCards = Array.from(Array(numCards).keys());
-  console.log(`cards: ${newCards}`);
   const shuffled = shuffle(newCards);
-  console.log(`shuffled: ${shuffled}`);
 
   let cards = Array.from(Array(numCards).keys());
 
   let index = 0;
   for (let round = 0; round != numRounds; ++round) {
     for (let player = 0; player != numPlayers; ++player) {
-      console.log(`player: ${player} round: ${round} index: ${index} shuffled: ${shuffled[index]}`);
       cards[shuffled[index]] = player + 1;
       index++;
     }
   }
-  console.log(`remaining index: ${index} shuffled: ${shuffled[index]}`);
   cards[shuffled[index]] = 0;
   index++;
-  console.log(`remaining index: ${index} shuffled: ${shuffled[index]}`);
   cards[shuffled[index]] = 0;
 
-  console.log(`dealt cards: ${cards}`);
   return cards;
 }
 
