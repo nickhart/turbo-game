@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Card } from './card'
+import { shuffle } from './shuffle';
 
 export type ZoliteContextType = {
 
@@ -26,10 +27,10 @@ const useZolite = () => React.useContext(ZoliteContext);
 
 export {ZoliteProvider, useZolite};
 
-const numCards = 26;
-const numPlayers = 3;
-const numRounds = 8;
-const numZoleCards = 2;
+export const numCards = 26;
+export const numPlayers = 3;
+export const numRounds = 8;
+export const numZoleCards = 2;
 
 export const handNames = [
   'deck',
@@ -58,7 +59,7 @@ const claimedSmallOnes = 10;
 
 
 
-export const gameDeck: Array<Card> = [
+const gameDeck: Array<Card> = [
   { index: 0, suit: 0, rank: 0, points: 3, name: 'QC'},
   { index: 1, suit: 0, rank: 1, points: 3, name: 'QS'},
   { index: 2, suit: 0, rank: 2, points: 3, name: 'QH'},
@@ -92,18 +93,47 @@ export const gameDeck: Array<Card> = [
 
 export function calculateWinner(cards: Array<number>) {
     return null;
-  }
+}
   
 export function extractHands(cards: Array<number>): Array<Array<Card>> {
     let hands: Card[][] = [[], [], [], []];
   
+    console.log(`extractHands: cards = ${cards}...`);
     cards.forEach((item: number, index: number) => {
       const hand: Array<Card> = hands[item];
-      hand.push(gameDeck[index]);
+      console.log(`index: ${index}`);
+      const card = gameDeck[index];
+      hand.push(card);
     });
   
     return hands;
+}
+
+export function dealCards(): Array<number> {
+  const newCards = Array.from(Array(numCards).keys());
+  console.log(`cards: ${newCards}`);
+  const shuffled = shuffle(newCards);
+  console.log(`shuffled: ${shuffled}`);
+
+  let cards = Array.from(Array(numCards).keys());
+
+  let index = 0;
+  for (let round = 0; round != numRounds; ++round) {
+    for (let player = 0; player != numPlayers; ++player) {
+      console.log(`player: ${player} round: ${round} index: ${index} shuffled: ${shuffled[index]}`);
+      cards[shuffled[index]] = player + 1;
+      index++;
+    }
   }
+  console.log(`remaining index: ${index} shuffled: ${shuffled[index]}`);
+  cards[shuffled[index]] = 0;
+  index++;
+  console.log(`remaining index: ${index} shuffled: ${shuffled[index]}`);
+  cards[shuffled[index]] = 0;
+
+  console.log(`dealt cards: ${cards}`);
+  return cards;
+}
 
 export function deduceState(cards: Array<number>) {
     console.log('deduceState...');
@@ -165,3 +195,5 @@ export function deduceState(cards: Array<number>) {
              turn,
              calledZole };
   }
+
+  

@@ -1,10 +1,8 @@
 import React, { ReactNode } from 'react';
-import { Card } from './card'
-import { Board } from './board'
-import { deduceState, extractHands, ZoliteProvider, calculateWinner } from './zolite'
+import { Card } from './card';
+import { Board } from './board';
+import { deduceState, dealCards, ZoliteProvider, calculateWinner, extractHands } from './zolite';
 
-
-  
 interface GameState {
   cards: Array<number>;
 }
@@ -52,11 +50,24 @@ class Game extends React.Component<GameProps, any> {
       });
     }
 
-    dealCards() {
-      // TODO: helper function
+    beginGame() {
+      console.log('beginGame');
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
       const current = history[history.length - 1];
-      const hands = extractHands(current.cards);
+
+      const cards = dealCards();
+      console.log(`cards: ${cards}`);
+      const state = deduceState(cards);
+      console.log(`state: ${state}`);
+
+      this.setState({
+        history: history.concat([{
+            cards: cards,
+          }]),
+          stepNumber: history.length,
+          // currentPlayer: 0, // parameterize this
+      });
+
     }
 
     jumpTo(step: number) {
@@ -67,9 +78,23 @@ class Game extends React.Component<GameProps, any> {
     }
   
     render() {
+      console.log('render BEGIN');
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.cards);
+
+      let actions
+      if (this.state.stepNumber === 0) {
+          const desc = 'Deal Cards'
+          actions = [(
+            <li key={desc}>
+              <button onClick={() => this.beginGame()}>{desc}</button>
+            </li>
+          )]
+      }
+      else {
+        actions = ''
+      }
 
       const moves = history.map((step: any, move: React.Key) => {
           const desc = move ?
@@ -88,6 +113,7 @@ class Game extends React.Component<GameProps, any> {
       } else {
         status = `Next player: ${this.state.currentPlayer}`;
       }
+      console.log('render END');
 
       return (
         <ZoliteProvider>
@@ -100,7 +126,7 @@ class Game extends React.Component<GameProps, any> {
             </div>
             <div className="game-info">
               <div>{status}</div>
-              <ol>{moves}</ol>
+              <ol>{moves} {actions}</ol>
             </div>
           </div>
         </ZoliteProvider>
