@@ -32,24 +32,49 @@ export const numPlayers = 3;
 export const numRounds = 8;
 export const numZoleCards = 2;
 
+// should be renamed to locationNames... it's all about the locations
 export const handNames = [
-  'deck',
-  'p1',
-  'p2',
-  'p3'
+  'deck',       // 0
+  'p1 hand',    // 1
+  'p2 hand',    // 2
+  'p3 hand',    // 3
+
+  'unused1',     // 4
+  'p1 trick',   // 5
+  'p2 trick',   // 6
+  'p3 trick',   // 7
+
+  'small won',  // 8
+  'p1 won',     // 9
+  'p2 won',     // 10
+  'p3 won',     // 11
+
+  'unused2',     // 12
+  'p1 zole',    // 13
+  'p2 zole',    // 14
+  'p3 zole',    // 15
 ];
 
+// rename to consistent locName (locTrick1. etc...)
 const handDeck = 0;
 const handPlayer1 = 1;
 const handPlayer2 = 2;
 const handPlayer3 = 3;
-const trickPlayer1 = 4;
-const trickPlayer2 = 5;
-const trickPlayer3 = 6;
-const claimedPlayer1 = 7; // if P1 is big one
-const claimedPlayer2 = 8; // if P2 is big one
-const claimedPlayer3 = 9; // if P3 is big one
-const claimedSmallOnes = 10;
+// unused 1
+const trickPlayer1 = 5;
+const trickPlayer2 = 6;
+const trickPlayer3 = 7;
+
+const claimedSmallOnes = 8;
+const claimedPlayer1 = 9;
+const claimedPlayer2 = 10;
+const claimedPlayer3 = 11;
+// unused 2
+const zolePlayer1 = 13;
+const zolePlayer2 = 14;
+const zolePlayer3 = 15;
+
+const numLocations = 16;
 
 // TODO: need some kind of memory
 // const playedPlayer1 = 11;
@@ -116,13 +141,35 @@ export function dealCards(): Array<number> {
   let index = 0;
   for (let round = 0; round != numRounds; ++round) {
     for (let player = 0; player != numPlayers; ++player) {
-      cards[shuffled[index]] = player + 1;
+      cards[shuffled[index]] = player + handPlayer1;
       index++;
     }
   }
-  cards[shuffled[index]] = 0;
+  cards[shuffled[index]] = handDeck;
   index++;
-  cards[shuffled[index]] = 0;
+  cards[shuffled[index]] = handDeck;
+
+  return cards;
+}
+
+export function pickupCards(cards: Array<number>, player: number): Array<number> {
+  // move all the cards in the deck to the specified player's hand
+  for (let index = 0; index != numCards; ++index) {
+    if (cards[index] === handDeck) {
+      cards[index] = player + handPlayer1;
+    }
+  }
+
+  return cards;
+}
+
+export function callZole(cards: Array<number>, player: number): Array<number> {
+  // move all the cards in the deck to the specified player's "zole" hand (can't look at them)
+  for (let index = 0; index != numCards; ++index) {
+    if (cards[index] === handDeck) {
+      cards[index] = player + handPlayer1;
+    }
+  }
 
   return cards;
 }
@@ -142,7 +189,7 @@ export function deduceState(cards: Array<number>) {
       console.log('called Zole');
     }
     else if (numDeckCards === numZoleCards) {
-      console.log('zole not called or need to choose big one');
+      console.log('need to select the big one');
     }
     else {
       console.log('indeterminate state--need to finish dealing?');
