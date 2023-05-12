@@ -1,11 +1,10 @@
-
+import {emptyDeck} from "../src/card"
 
 describe('card module', () => {
-    test('card deck', () => {
-    });
 
-    test('card deck 2', () => {
+    test('empty deck', () => {
+        const deckSize = 10
+        let cards = emptyDeck(deckSize)
+        expect(cards.length).toBe(deckSize)
     });
 });
-  
-  

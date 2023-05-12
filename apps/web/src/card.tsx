@@ -19,7 +19,7 @@ export function Card(props: any) {
   );
 }
 
-enum Location {
+export enum Location {
   None,
   Hand, // visible to the owner
   Trick, // visible to all
@@ -38,11 +38,11 @@ const LocationNames = [
   "Zole"
 ];
 
-function getLocationName(location: Location) {
+export function getLocationName(location: Location) {
   return LocationNames[location];
 }
 
-enum Player {
+export enum Player {
   None = 0,
   Player1,
   Player2,
@@ -57,11 +57,11 @@ const PlayerNames = [
   "Player 3"
 ];
 
-function getPlayerName(player: Player) {
+export function getPlayerName(player: Player) {
   return PlayerNames[player];
 }
 
-type CardState = {
+export type CardState = {
   dealt: Player; // 2 bits
   location: Location; // 2 bits
   winner: Player; // 2 bits
@@ -78,15 +78,11 @@ type CardState = {
 
 }
 
-type Deck = CardState[];
+export type Deck = CardState[];
 
-function newDeck(size: number): Deck | undefined {
-  if (size > 0) {
-    const newCard: CardState = { dealt: Player.None, location: Location.Hand, winner: Player.None, wasLed: false, wasVoid: false };
-    return new Array(size).fill(newCard);
-  }
-  // throw?
-  return undefined;
+export function emptyDeck(size: number): Deck {
+  const newCard: CardState = { dealt: Player.None, location: Location.Hand, winner: Player.None, wasLed: false, wasVoid: false };
+  return new Array(size).fill(newCard);
 }
 
 function dealCards(cards: Deck, leader: Player) {
@@ -99,18 +95,16 @@ function dealCards(cards: Deck, leader: Player) {
 
 }
 
-function dealCard(cards: Deck, index: number, player: Player): Deck {
+function dealCard(cards: Deck, index: number, player: Player) {
   cards[index].dealt = player;
-  return cards;
 }
 
-function pickupCard(cards: Deck, index: number, player: Player): Deck {
+function pickupCard(cards: Deck, index: number, player: Player) {
   // assert that the player owns it?
   let newCard = cards[index];
   // newCard.dealt = player;
   newCard.location = Location.Hand;
   cards[index] = newCard;
-  return cards;
 }
 
 function discardCard(cards: Deck, index: number, player: Player) {
@@ -119,15 +113,13 @@ function discardCard(cards: Deck, index: number, player: Player) {
   // newCard.dealt = player;
   newCard.location = Location.Discarded;
   cards[index] = newCard;
-  return cards;
 }
 
-function claimCard(cards: Deck, index: number, player: Player): Deck {
+function claimCard(cards: Deck, index: number, player: Player) {
   // assert that the player owns it?
   let newCard = cards[index];
   // newCard.dealt = player;
   newCard.location = Location.Discarded;
   cards[index] = newCard;
-  return cards;
 }
 
